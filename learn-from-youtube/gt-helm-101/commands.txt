@@ -1,0 +1,18 @@
+helm create gt-learn-from-youtube-101
+.
+├── Chart.yaml
+├── charts
+├── commands.txt
+├── templates
+│   ├── NOTES.txt
+│   ├── _helpers.tpl
+│   ├── deployment.yaml
+│   ├── hpa.yaml
+│   ├── ingress.yaml
+│   ├── service.yaml
+│   ├── serviceaccount.yaml
+│   └── tests
+│       └── test-connection.yaml
+└── values.yaml
+
+3 directories, 11 files
