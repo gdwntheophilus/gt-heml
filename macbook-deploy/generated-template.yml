@@ -1,0 +1,102 @@
+---
+# Source: macbook-deploy/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: macbook-deploy
+  labels:
+    helm.sh/chart: macbook-deploy-0.1.0
+    app.kubernetes.io/name: macbook-deploy
+    app.kubernetes.io/instance: macbook-deploy
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+---
+# Source: macbook-deploy/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: macbook-deploy
+  labels:
+    helm.sh/chart: macbook-deploy-0.1.0
+    app.kubernetes.io/name: macbook-deploy
+    app.kubernetes.io/instance: macbook-deploy
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: macbook-deploy
+    app.kubernetes.io/instance: macbook-deploy
+---
+# Source: macbook-deploy/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: macbook-deploy
+  labels:
+    helm.sh/chart: macbook-deploy-0.1.0
+    app.kubernetes.io/name: macbook-deploy
+    app.kubernetes.io/instance: macbook-deploy
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: macbook-deploy
+      app.kubernetes.io/instance: macbook-deploy
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: macbook-deploy
+        app.kubernetes.io/instance: macbook-deploy
+    spec:
+      serviceAccountName: macbook-deploy
+      securityContext:
+        {}
+      containers:
+        - name: macbook-deploy
+          securityContext:
+            {}
+          image: "nginx:1.16.0"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {}
+---
+# Source: macbook-deploy/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "macbook-deploy-test-connection"
+  labels:
+    helm.sh/chart: macbook-deploy-0.1.0
+    app.kubernetes.io/name: macbook-deploy
+    app.kubernetes.io/instance: macbook-deploy
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['macbook-deploy:80']
+  restartPolicy: Never
